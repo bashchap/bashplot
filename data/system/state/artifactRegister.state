@@ -1,0 +1,3 @@
+#!/bin/bash
+
+declare -A _PLOT_artifactRegister=([dot1]="15,10,1,1" [dot0]="15,10,1,1" )

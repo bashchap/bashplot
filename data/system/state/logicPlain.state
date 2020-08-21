@@ -1,0 +1,3 @@
+#!/bin/bash
+
+declare -A _PLOT_logicPlain=([15,10]="6" )

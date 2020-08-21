@@ -1,0 +1,3 @@
+#!/bin/bash
+
+declare -A _PLOT_artifactRender=([dot1]="[11;16H▚" [dot0]="[11;16H▘[11;16H▘" )

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+declare -A _PLOT_displayPlain=([15,10]="▚" )

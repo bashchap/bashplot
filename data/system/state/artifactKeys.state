@@ -1,0 +1,3 @@
+#!/bin/bash
+
+declare -A _PLOT_artifactKeys=([dot1]=" 15,10 " [dot0]=" 15,10  15,10  15,10  15,10 " )
