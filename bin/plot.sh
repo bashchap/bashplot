@@ -12,7 +12,12 @@
 
 #trap _PLOT_cleanupDuties EXIT
 
+# These arrays HAVE to be globally available hence are defined here
+declare -A _PLOT_logicPlain _PLOT_displayPlain _PLOT_artifactRegister _PLOT_artifactKeys _PLOT_artifactRender
+
+
 _PLOT_dirBin=$(dirname $0)
+#_PLOT_dirBin=$(readlink -f $0)
 _PLOT_dirHome=${_PLOT_dirBin}/..
 _PLOT_dirCfg=${_PLOT_dirHome}/cfg
 _PLOT_dirData=${_PLOT_dirHome}/data
@@ -35,7 +40,6 @@ _PLOT_pLog() {
 }
 
 _PLOT_tPlot() {
-# local tP_artifactName=$1 tP_charShortCode=$2 tP_dcx=$((${3}/2)) tP_dcy=$((${4}/2))
  local tP_artifactName=$1 tP_charShortCode=$2 tP_dcx=${3} tP_dcy=${4}
  local tP_w="${5:-1}" tP_h="${6:-1}"
  local tP_xyKey="$tP_dcx,$tP_dcy" tP_bitMapCode="" tP_xyKeyChar=""
@@ -44,16 +48,20 @@ _PLOT_tPlot() {
    [ ${tP_w} -eq 1 -a ${tP_h} -gt 1 ] && tP_charShortCode=VCL
 # Setup xref variable bitmap code of CSC
  tP_bitMapCode=_PLOT_bm${tP_charShortCode} 
- _PLOT_logicPlain[${tP_xyKey}]=$((${_PLOT_logicPlain[${tP_xyKey}]:-0}|${!tP_bitMapCode}))
+
+ _PLOT_logicPlain["${tP_xyKey}"]=$((${_PLOT_logicPlain["${tP_xyKey}"]:-0}|${!tP_bitMapCode}))
+
  tP_xyKeyChar="_PLOT_u${_PLOT_bitMap[${_PLOT_logicPlain[${tP_xyKey}]}]#_PLOT_bm}"
 # At this stage have generated the morphed character and set it
  _PLOT_displayPlain[${tP_xyKey}]="\u${!tP_xyKeyChar}"
- _PLOT_addArtifactKeys ${tP_artifactName} ${tP_xyKey}
+# _PLOT_addArtifactKeys ${tP_artifactName} ${tP_xyKey}
+   [ "${_PLOT_artifactKeys["${tP_artifactName}"]}" = "${_PLOT_artifactKeys["${tP_artifactName}"]##* ${tP_xyKey} }" ] && \
+     _PLOT_artifactKeys["${tP_artifactName}"]="${_PLOT_artifactKeys[${tP_artifactName}]} ${tP_xyKey} " 
 }
 
 # Provide: $1=Artifact name, $2=Artifact Key
 _PLOT_addArtifactKeys() {
- _PLOT_artifactKeys["${1}"]="${_PLOT_artifactKeys[$1]} $2 " 
+   [ "${_PLOT_artifactKeys["$1"]}" = "${_PLOT_artifactKeys["$1"]##*$2}" ] && _PLOT_artifactKeys["${1}"]="${_PLOT_artifactKeys[$1]} $2 " 
 }
 
 # Provide: $1=Artifact Name
@@ -139,7 +147,7 @@ _PLOT_dumpLogicPlain() {
  local allKeys
   echo -ne "#!/bin/bash
 
-declare -A _PLOT_logicPlain=("
+_PLOT_logicPlain=("
     for allKeys in ${!_PLOT_logicPlain[*]}
     do
       echo -ne "[${allKeys}]=\"${_PLOT_logicPlain[${allKeys}]}\" "
@@ -153,7 +161,7 @@ _PLOT_dumpDisplayPlain() {
  local allKeys
   echo -ne "#!/bin/bash
 
-declare -A _PLOT_displayPlain=("
+_PLOT_displayPlain=("
     for allKeys in ${!_PLOT_displayPlain[*]}
     do
       echo -ne "[${allKeys}]=\"${_PLOT_displayPlain[${allKeys}]}\" "
@@ -167,7 +175,7 @@ _PLOT_dumpArtifactRegister() {
  local allKeys
   echo -ne "#!/bin/bash
 
-declare -A _PLOT_artifactRegister=("
+_PLOT_artifactRegister=("
     for allKeys in ${!_PLOT_artifactRegister[*]}
     do
       echo -ne "[${allKeys}]=\"${_PLOT_artifactRegister[${allKeys}]}\" "
@@ -181,7 +189,7 @@ _PLOT_dumpArtifactRender() {
  local allKeys
   echo -ne "#!/bin/bash
 
-declare -A _PLOT_artifactRender=("
+_PLOT_artifactRender=("
     for allKeys in ${!_PLOT_artifactRender[*]}
     do
       echo -ne "[${allKeys}]=\"${_PLOT_artifactRender[${allKeys}]}\" "
@@ -195,7 +203,7 @@ _PLOT_dumpArtifactKeys() {
  local allKeys
   echo -ne "#!/bin/bash
 
-declare -A _PLOT_artifactKeys=("
+_PLOT_artifactKeys=("
     for allKeys in ${!_PLOT_artifactKeys[*]}
     do
       echo -ne "[${allKeys}]=\"${_PLOT_artifactKeys[${allKeys}]}\" "
@@ -210,11 +218,13 @@ return 0
 }
 
 _PLOT_clearDB() {
-   [ -f ${_PLOT_logicPlainStateFile} ]		&& rm -f ${_PLOT_logicPlainStateFile}
-   [ -f ${_PLOT_displayPlainStateFile} ] 	&& rm -f ${_PLOT_displayPlainStateFile}
-   [ -f ${_PLOT_artifactRegisterStateFile} ]	&& rm -f ${_PLOT_artifactRegisterStateFile}
-   [ -f ${_PLOT_artifactKeysStateFile} ]	&& rm -f ${_PLOT_artifactKeysStateFile}
-   [ -f ${_PLOT_artifactRenderStateFile} ]	&& rm -f ${_PLOT_artifactRenderStateFile}
+_PLOT_logicPlain[_]=junk ; for k in ${!_PLOT_logicPlain[*]} ; do [ $k != _ ] unset _PLOT_logicPlain[$k] ; done
+ [ -f ${_PLOT_logicPlainStateFile} ]	&&	rm -f ${_PLOT_logicPlainStateFile}
+
+ unset _PLOT_displayPlain[*]	&&	[ -f ${_PLOT_displayPlainStateFile} ]	&&	rm -f ${_PLOT_displayPlainStateFile}
+ unset _PLOT_artifactRegister[*] &&	[ -f ${_PLOT_artifactRegisterStateFile} ] &&	rm -f ${_PLOT_artifactRegisterStateFile}
+ unset _PLOT_artifactKeys[*]	&&	[ -f ${_PLOT_artifactKeysStateFile} ]	&&	rm -f ${_PLOT_artifactKeysStateFile}
+ unset _PLOT_artifactRender[*]	&&	[ -f ${_PLOT_artifactRenderStateFile} ]	&&	rm -f ${_PLOT_artifactRenderStateFile}
 }
 
 _PLOT_loadDB() {
@@ -239,14 +249,13 @@ _PLOT_writeDB() {
 #	START HERE
 
 
-# These arrays HAVE to be globally available hence are defined here
-declare -A _PLOT_logicPlain _PLOT_displayPlain _PLOT_artifactRegister _PLOT_artifactKeys _PLOT_artifactRender
 
 # Global variables set for useful reference in calling scripts
 # *VScale = Virtual scale compared to *PSR (Physical Screen Resolution (max columns and rows))
 # *VSR = Virtual Screen Resolution 
 declare -i _PLOT_xVScale=2 _PLOT_yVScale=2
 declare -i _PLOT_xPSR=$(($(tput cols))) _PLOT_yPSR=$(($(tput lines)))
-declare -i _PLOT_xVSR=$((_PLOT_xPSR*_PLOT_xVScale-1)) _PLOT_yVSR=$((_PLOT_yPSR*_PLOT_yVScale-1))
+#declare -i _PLOT_xVSR=$((_PLOT_xPSR*_PLOT_xVScale-1)) _PLOT_yVSR=$((_PLOT_yPSR*_PLOT_yVScale-1))
+declare -i _PLOT_xVSR=$((_PLOT_xPSR*_PLOT_xVScale)) _PLOT_yVSR=$((_PLOT_yPSR*_PLOT_yVScale))
 
 

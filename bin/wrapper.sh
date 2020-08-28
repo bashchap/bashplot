@@ -6,11 +6,10 @@ declare -i h=0 w=0
 declare -i xPos=0 yPos=0
 declare -i xV=$((${_PLOT_xVSR}/2)) yV=$((${_PLOT_yVSR}/2))
 declare -i dX= dY=0 dN=0
-declare -i maxLength=100
-declare -i minLength=10
+declare -i maxLength=5
+declare -i minLength=5
 
 clear
-#_PLOT_createBox Outline 0 0 $maxCols $maxRows
 #_PLOT_createBox Outline 0 0 $((${_PLOT_xPSR})) $((${_PLOT_yPSR}))
 #_PLOT_displayArtifact Outline 
 
@@ -18,6 +17,8 @@ clear
   do
       [ $((${xV}+${dX})) -lt 0 -o $((${xV}+${dX})) -eq $((${_PLOT_xVSR})) ] && dX=$((-${dX}))
       [ $((${yV}+${dY})) -lt 0 -o $((${yV}+${dY})) -eq $((${_PLOT_yVSR})) ] && dY=$((-${dY}))
+#      [ $((${xV}+${dX}*2)) -le 0 -o $((${xV}+${dX}*2)) -ge $((${_PLOT_xVSR}*2)) ] && dX=$((-${dX}*2))
+#      [ $((${yV}+${dY}*2)) -le 0 -o $((${yV}+${dY}*2)) -ge $((${_PLOT_yVSR}*2)) ] && dY=$((-${dY}*2))
     xV+=dX yV+=dY
 # pLog After dN=$dN xV=$xV dX=$dX yV=$yV dY=$dY
       if [ ${dN} -lt 1 ]
@@ -37,6 +38,5 @@ clear
 
 _PLOT_gPlot "Dot,$xV,$yV" $xV $yV
     dN=$(($dN-1))
-#sleep 0.01
   done
 
