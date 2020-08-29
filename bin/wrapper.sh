@@ -1,15 +1,18 @@
 #!/bin/bash
 
-source ./plot.sh
+# This source line MUST be the first line of any bash code the functions are used in, otherwise the $_
+# parameter will notr be set accordingly and relative paths will not be set either
+source /home/tara/dev/bashplot/bin/plot.sh
+
+clear
 
 declare -i h=0 w=0 
 declare -i xPos=0 yPos=0
 declare -i xV=$((${_PLOT_xVSR}/2)) yV=$((${_PLOT_yVSR}/2))
-declare -i dX= dY=0 dN=0
-declare -i maxLength=5
-declare -i minLength=5
+declare -i dX= dY=0 dN=0 dNC=0 dNMax=10
+declare -i maxLength=15
+declare -i minLength=53
 
-clear
 #_PLOT_createBox Outline 0 0 $((${_PLOT_xPSR})) $((${_PLOT_yPSR}))
 #_PLOT_displayArtifact Outline 
 
@@ -27,6 +30,8 @@ clear
         dY=$((1-($RANDOM%3)))
           [ ${dX} -eq 0 -a ${dY} -eq 0 ] && continue
         dN=$((($RANDOM%${maxLength})+(${minLength}+1)))
+#        dNC+=1
+#          [ ${dNC} -eq ${dNMax} ] && _PLOT_writeDB && exit
       fi
 
 # This is the plotting activity

@@ -12,11 +12,10 @@
 
 #trap _PLOT_cleanupDuties EXIT
 
+_PLOT_dirBin=${_%/*}
 # These arrays HAVE to be globally available hence are defined here
 declare -A _PLOT_logicPlain _PLOT_displayPlain _PLOT_artifactRegister _PLOT_artifactKeys _PLOT_artifactRender
 
-
-_PLOT_dirBin=$(dirname $0)
 #_PLOT_dirBin=$(readlink -f $0)
 _PLOT_dirHome=${_PLOT_dirBin}/..
 _PLOT_dirCfg=${_PLOT_dirHome}/cfg
@@ -217,14 +216,23 @@ _PLOT_cleanupDuties() {
 return 0
 }
 
+# The purpose of this function is just to clear the databases (stored and in-memory).  This turned out to be a lot more awkward
+# that I ever ancitipated.  Reason is, if I unset all the elements of an associative array, the next time there's an assignment to it,
+# bash re-declares it as an indexed array (no matter what the index is, i.e. not numeric).  I explicitly re-declare the arrays as
+# associative within the function, as they become local to the function and don't retain their assignments out of it.
+# So the dirty way I have worked out, it to assign one element as a dummy (non-numeric) index and clear out the rest.
+# There has to be another way.  This is not very elegant and I must be missing something.  Is this a bug?
 _PLOT_clearDB() {
-_PLOT_logicPlain[_]=junk ; for k in ${!_PLOT_logicPlain[*]} ; do [ $k != _ ] unset _PLOT_logicPlain[$k] ; done
- [ -f ${_PLOT_logicPlainStateFile} ]	&&	rm -f ${_PLOT_logicPlainStateFile}
-
- unset _PLOT_displayPlain[*]	&&	[ -f ${_PLOT_displayPlainStateFile} ]	&&	rm -f ${_PLOT_displayPlainStateFile}
- unset _PLOT_artifactRegister[*] &&	[ -f ${_PLOT_artifactRegisterStateFile} ] &&	rm -f ${_PLOT_artifactRegisterStateFile}
- unset _PLOT_artifactKeys[*]	&&	[ -f ${_PLOT_artifactKeysStateFile} ]	&&	rm -f ${_PLOT_artifactKeysStateFile}
- unset _PLOT_artifactRender[*]	&&	[ -f ${_PLOT_artifactRenderStateFile} ]	&&	rm -f ${_PLOT_artifactRenderStateFile}
+ _PLOT_logicPlain[_]=junk ; for k in ${!_PLOT_logicPlain[*]} ; do [ $k != _ ] && unset _PLOT_logicPlain[$k] ; done
+   [ -f ${_PLOT_logicPlainStateFile} ]	&&	rm -f ${_PLOT_logicPlainStateFile}
+ _PLOT_displayPlain[_]=junk ; for k in ${!_PLOT_displayPlain[*]} ; do [ $k != _ ] && unset _PLOT_displayPlain[$k] ; done
+   [ -f ${_PLOT_displayPlainStateFile} ]	&&	rm -f ${_PLOT_displayPlainStateFile}
+ _PLOT_artifactRegister[_]=junk ; for k in ${!_PLOT_artifactRegister[*]} ; do [ $k != _ ] && unset _artifactRegister[$k] ; done
+   [ -f ${_PLOT_artifactRegisterStateFile} ] &&	rm -f ${_PLOT_artifactRegisterStateFile}
+ _PLOT_artifactKeys[_]=junk ; for k in ${!_PLOT_artifactKeys[*]} ; do [ $k != _ ] && unset _artifactKeys[$k] ; done
+   [ -f ${_PLOT_artifactKeysStateFile} ]	&&	rm -f ${_PLOT_artifactKeysStateFile}
+ _PLOT_artifactRender[_]=junk ; for k in ${!_PLOT_artifactRender[*]} ; do [ $k != _ ] && unset _artifactRender[$k] ; done
+   [ -f ${_PLOT_artifactRenderStateFile} ]	&&	rm -f ${_PLOT_artifactRenderStateFile}
 }
 
 _PLOT_loadDB() {
