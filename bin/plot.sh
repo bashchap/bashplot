@@ -47,12 +47,13 @@ _PLOT_tPlot() {
    [ ${tP_w} -eq 1 -a ${tP_h} -gt 1 ] && tP_charShortCode=VCL
 # Setup xref variable bitmap code of CSC
  tP_bitMapCode=_PLOT_bm${tP_charShortCode} 
-
  _PLOT_logicPlain["${tP_xyKey}"]=$((${_PLOT_logicPlain["${tP_xyKey}"]:-0}|${!tP_bitMapCode}))
-
  tP_xyKeyChar="_PLOT_u${_PLOT_bitMap[${_PLOT_logicPlain[${tP_xyKey}]}]#_PLOT_bm}"
 # At this stage have generated the morphed character and set it
- _PLOT_displayPlain[${tP_xyKey}]="\u${!tP_xyKeyChar}"
+# _PLOT_displayPlain[${tP_xyKey}]="\u${!tP_xyKeyChar}"
+
+ _PLOT_displayPlain[${tP_xyKey}]="\033[$(($tP_dcy+1));$(($tP_dcx+1))H\u${!tP_xyKeyChar}"
+
 # _PLOT_addArtifactKeys ${tP_artifactName} ${tP_xyKey}
    [ "${_PLOT_artifactKeys["${tP_artifactName}"]}" = "${_PLOT_artifactKeys["${tP_artifactName}"]##* ${tP_xyKey} }" ] && \
      _PLOT_artifactKeys["${tP_artifactName}"]="${_PLOT_artifactKeys[${tP_artifactName}]} ${tP_xyKey} " 
@@ -70,7 +71,9 @@ _PLOT_displayArtifact() {
    for dA_xyKey in ${_PLOT_artifactKeys["${dA_artifactName}"]} 
    do
      dA_x=${dA_xyKey%,*} dA_y=${dA_xyKey#*,}     
-     dA_thisArtifact="${dA_thisArtifact}\033[$(($dA_y+1));$(($dA_x+1))H${_PLOT_displayPlain[${dA_xyKey}]:-" "}"
+#     dA_thisArtifact="${dA_thisArtifact}\033[$(($dA_y+1));$(($dA_x+1))H${_PLOT_displayPlain[${dA_xyKey}]:-" "}"
+     dA_thisArtifact="${dA_thisArtifact}${_PLOT_displayPlain[${dA_xyKey}]:-" "}"
+
    done
  _PLOT_artifactRender["${dA_artifactName}"]="${dA_thisArtifact}"
  echo -ne "${dA_thisArtifact}"
@@ -104,10 +107,10 @@ _PLOT_createBox() {
  local cB_w=${4:-1} cB_h=${5:-1}
 
 # If an artifact already exists with that name so need to do anything else
-   if [ "${_PLOT_artifactRegister[${cB_artifactName}]}" != "" ]
-   then
-     return
-   fi
+#   if [ "${_PLOT_artifactRegister[${cB_artifactName}]}" != "" ]
+#   then
+#     return
+#   fi
 
  _PLOT_registerArtifact ${cB_artifactName} ${cB_dcx} ${cB_dcy} ${cB_w} ${cB_h}
 # Calculate box vertices
@@ -227,11 +230,11 @@ _PLOT_clearDB() {
    [ -f ${_PLOT_logicPlainStateFile} ]	&&	rm -f ${_PLOT_logicPlainStateFile}
  _PLOT_displayPlain[_]=junk ; for k in ${!_PLOT_displayPlain[*]} ; do [ $k != _ ] && unset _PLOT_displayPlain[$k] ; done
    [ -f ${_PLOT_displayPlainStateFile} ]	&&	rm -f ${_PLOT_displayPlainStateFile}
- _PLOT_artifactRegister[_]=junk ; for k in ${!_PLOT_artifactRegister[*]} ; do [ $k != _ ] && unset _artifactRegister[$k] ; done
+ _PLOT_artifactRegister[_]=junk ; for k in ${!_PLOT_artifactRegister[*]} ; do [ $k != _ ] && unset _PLOT_artifactRegister[$k] ; done
    [ -f ${_PLOT_artifactRegisterStateFile} ] &&	rm -f ${_PLOT_artifactRegisterStateFile}
- _PLOT_artifactKeys[_]=junk ; for k in ${!_PLOT_artifactKeys[*]} ; do [ $k != _ ] && unset _artifactKeys[$k] ; done
+ _PLOT_artifactKeys[_]=junk ; for k in ${!_PLOT_artifactKeys[*]} ; do [ $k != _ ] && unset _PLOT_artifactKeys[$k] ; done
    [ -f ${_PLOT_artifactKeysStateFile} ]	&&	rm -f ${_PLOT_artifactKeysStateFile}
- _PLOT_artifactRender[_]=junk ; for k in ${!_PLOT_artifactRender[*]} ; do [ $k != _ ] && unset _artifactRender[$k] ; done
+ _PLOT_artifactRender[_]=junk ; for k in ${!_PLOT_artifactRender[*]} ; do [ $k != _ ] && unset _PLOT_artifactRender[$k] ; done
    [ -f ${_PLOT_artifactRenderStateFile} ]	&&	rm -f ${_PLOT_artifactRenderStateFile}
 }
 

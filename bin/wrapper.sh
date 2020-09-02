@@ -9,13 +9,14 @@ clear
 declare -i h=0 w=0 
 declare -i xPos=0 yPos=0
 declare -i xV=$((${_PLOT_xVSR}/2)) yV=$((${_PLOT_yVSR}/2))
-declare -i dX= dY=0 dN=0 dNC=0 dNMax=10
-declare -i maxLength=15
-declare -i minLength=53
+declare -i dX= dY=0 dN=0 dNC=0 dNMax=400
+declare -i maxLength=40
+declare -i minLength=20
 
 #_PLOT_createBox Outline 0 0 $((${_PLOT_xPSR})) $((${_PLOT_yPSR}))
 #_PLOT_displayArtifact Outline 
 
+SECONDS=0
   while :
   do
       [ $((${xV}+${dX})) -lt 0 -o $((${xV}+${dX})) -eq $((${_PLOT_xVSR})) ] && dX=$((-${dX}))
@@ -30,8 +31,17 @@ declare -i minLength=53
         dY=$((1-($RANDOM%3)))
           [ ${dX} -eq 0 -a ${dY} -eq 0 ] && continue
         dN=$((($RANDOM%${maxLength})+(${minLength}+1)))
-#        dNC+=1
+        dNC+=1
 #          [ ${dNC} -eq ${dNMax} ] && _PLOT_writeDB && exit
+#         if [ $((${dNC}%dNMax)) -eq 0 ]
+         if [ ${SECONDS} -gt 10 ]
+         then
+           SECONDS=0
+           maxLength=$((($RANDOM%100)+1))
+           minLength=$((($RANDOM%10)+1))
+           _PLOT_clearDB 
+           clear
+         fi
       fi
 
 # This is the plotting activity
