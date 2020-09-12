@@ -5,7 +5,7 @@
 
 # How to use this:
 # First source this code which gives you access to functions below:
-# _PLOT_gPlot artifactName x y [noShow] # graphics bloxel plot, x & y are virtual coordinates
+# _PLOT_BPlot artifactName x y [noShow] # graphics bloxel plot, x & y are virtual coordinates
 # _PLOT_tPlot artifactName x y [noShow] # text plot, x & y are physical screen resolution co-or
 # _PLOT_createBox artifactName x y w h [noShow] # box plot, x & y are physical screen resolution co-or
 # _PLOT_displayArtifact artifactName 
@@ -50,10 +50,7 @@ _PLOT_tPlot() {
  _PLOT_logicPlain["${tP_xyKey}"]=$((${_PLOT_logicPlain["${tP_xyKey}"]:-0}|${!tP_bitMapCode}))
  tP_xyKeyChar="_PLOT_u${_PLOT_bitMap[${_PLOT_logicPlain[${tP_xyKey}]}]#_PLOT_bm}"
 # At this stage have generated the morphed character and set it
-# _PLOT_displayPlain[${tP_xyKey}]="\u${!tP_xyKeyChar}"
-
  _PLOT_displayPlain[${tP_xyKey}]="\033[$(($tP_dcy+1));$(($tP_dcx+1))H\u${!tP_xyKeyChar}"
-
 # _PLOT_addArtifactKeys ${tP_artifactName} ${tP_xyKey}
    [ "${_PLOT_artifactKeys["${tP_artifactName}"]}" = "${_PLOT_artifactKeys["${tP_artifactName}"]##* ${tP_xyKey} }" ] && \
      _PLOT_artifactKeys["${tP_artifactName}"]="${_PLOT_artifactKeys[${tP_artifactName}]} ${tP_xyKey} " 
@@ -92,14 +89,27 @@ _PLOT_registerArtifact() {
 
 # Provide: Name X Y [show]
 # Is show as $4 is supplied it will call _PLOT_displayArtifact immediately after
-_PLOT_gPlot() {
- local gP_artifactName=$1 gP_x=$2 gP_y=$3 gP_display="${4}"
- local gP_wiwBloxel="${_PLOT_bitMap[$(((2-(gP_x%2))*(((gP_y%2)+1)**2)))]#_PLOT_bm}"
- _PLOT_registerArtifact ${gP_artifactName} $((gP_x/2)) $((gP_y/2)) 1 1
- _PLOT_tPlot ${gP_artifactName} ${gP_wiwBloxel} $((gP_x/2)) $((gP_y/2))
-   [ -z "${gP_display}" ] && _PLOT_displayArtifact ${gP_artifactName}
+_PLOT_BPlot() {
+ local BP_artifactName=$1 BP_x=$2 BP_y=$3 BP_display="${4}"
+ local BP_wiwBloxel="${_PLOT_bitMap[$(((2-(BP_x%2))*(((BP_y%2)+1)**2)))]#_PLOT_bm}"
+ _PLOT_registerArtifact ${BP_artifactName} $((BP_x/2)) $((BP_y/2)) 1 1
+ _PLOT_tPlot ${BP_artifactName} ${BP_wiwBloxel} $((BP_x/2)) $((BP_y/2))
+   [ -z "${BP_display}" ] && _PLOT_displayArtifact ${BP_artifactName}
 }
 
+# Provide: Name X Y [show]
+# Is show as $4 is supplied it will call _PLOT_displayArtifact immediately after
+_PLOT_bPlot() {
+ local bP_artifactName=$1 bP_x=$2 bP_y=$3 bP_display="${4}"
+# local bP_wiwBloxel="${_PLOT_bitMap[$(((2-(bP_x%2))*(((bP_y%2)+1)**2)))]#_PLOT_bm}"
+
+ local bP_wiwBixel="${_PLOT_bitMap[$(((2**(bP_y%_PLOT_yVScale))<<((bP_x%_PLOT_xVScale)*4)))]#_PLOT_bm}"
+# _PLOT_registerArtifact ${bP_artifactName} $((bP_x/2)) $((bP_y/2)) 1 1
+# _PLOT_tPlot ${bP_artifactName} ${bP_wiwBixel} $((bP_x/2)) $((bP_y/2))
+ _PLOT_registerArtifact ${bP_artifactName} $((bP_x/_PLOT_xVScale)) $((bP_y/_PLOT_yVScale)) 1 1
+ _PLOT_tPlot ${bP_artifactName} ${bP_wiwBixel} $((bP_x/_PLOT_xVScale)) $((bP_y/_PLOT_yVScale))
+   [ -z "${bP_display}" ] && _PLOT_displayArtifact ${bP_artifactName}
+}
 # Provide: Name X Y [W H]
 _PLOT_createBox() {
  local cB_artifactName=$1
@@ -264,9 +274,9 @@ _PLOT_writeDB() {
 # Global variables set for useful reference in calling scripts
 # *VScale = Virtual scale compared to *PSR (Physical Screen Resolution (max columns and rows))
 # *VSR = Virtual Screen Resolution 
-declare -i _PLOT_xVScale=2 _PLOT_yVScale=2
+#declare -i _PLOT_xVScale=2 _PLOT_yVScale=2
+#declare -i _PLOT_xPSR=$(($(tput cols))) _PLOT_yPSR=$(($(tput lines)))
 declare -i _PLOT_xPSR=$(($(tput cols))) _PLOT_yPSR=$(($(tput lines)))
-#declare -i _PLOT_xVSR=$((_PLOT_xPSR*_PLOT_xVScale-1)) _PLOT_yVSR=$((_PLOT_yPSR*_PLOT_yVScale-1))
 declare -i _PLOT_xVSR=$((_PLOT_xPSR*_PLOT_xVScale)) _PLOT_yVSR=$((_PLOT_yPSR*_PLOT_yVScale))
 
 
