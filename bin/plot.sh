@@ -87,25 +87,23 @@ _PLOT_registerArtifact() {
  _PLOT_artifactRegister[$1]="$2,$3,$4,$5"
 }
 
+# Blocks (Bloxel) plotting (4 quads per char)
 # Provide: Name X Y [show]
 # Is show as $4 is supplied it will call _PLOT_displayArtifact immediately after
 _PLOT_BPlot() {
  local BP_artifactName=$1 BP_x=$2 BP_y=$3 BP_display="${4}"
  local BP_wiwBloxel="${_PLOT_bitMap[$(((2-(BP_x%2))*(((BP_y%2)+1)**2)))]#_PLOT_bm}"
- _PLOT_registerArtifact ${BP_artifactName} $((BP_x/2)) $((BP_y/2)) 1 1
- _PLOT_tPlot ${BP_artifactName} ${BP_wiwBloxel} $((BP_x/2)) $((BP_y/2))
+ _PLOT_registerArtifact ${BP_artifactName} $((BP_x/_PLOT_xVScale)) $((BP_y/_PLOT_yVScale)) 1 1
+ _PLOT_tPlot ${BP_artifactName} ${BP_wiwBloxel} $((BP_x/_PLOT_xVScale)) $((BP_y/_PLOT_yVScale))
    [ -z "${BP_display}" ] && _PLOT_displayArtifact ${BP_artifactName}
 }
 
+# Braille (Bixel) plotting (8 dots per char)
 # Provide: Name X Y [show]
 # Is show as $4 is supplied it will call _PLOT_displayArtifact immediately after
 _PLOT_bPlot() {
  local bP_artifactName=$1 bP_x=$2 bP_y=$3 bP_display="${4}"
-# local bP_wiwBloxel="${_PLOT_bitMap[$(((2-(bP_x%2))*(((bP_y%2)+1)**2)))]#_PLOT_bm}"
-
  local bP_wiwBixel="${_PLOT_bitMap[$(((2**(bP_y%_PLOT_yVScale))<<((bP_x%_PLOT_xVScale)*4)))]#_PLOT_bm}"
-# _PLOT_registerArtifact ${bP_artifactName} $((bP_x/2)) $((bP_y/2)) 1 1
-# _PLOT_tPlot ${bP_artifactName} ${bP_wiwBixel} $((bP_x/2)) $((bP_y/2))
  _PLOT_registerArtifact ${bP_artifactName} $((bP_x/_PLOT_xVScale)) $((bP_y/_PLOT_yVScale)) 1 1
  _PLOT_tPlot ${bP_artifactName} ${bP_wiwBixel} $((bP_x/_PLOT_xVScale)) $((bP_y/_PLOT_yVScale))
    [ -z "${bP_display}" ] && _PLOT_displayArtifact ${bP_artifactName}
@@ -231,8 +229,8 @@ return 0
 
 # The purpose of this function is just to clear the databases (stored and in-memory).  This turned out to be a lot more awkward
 # that I ever ancitipated.  Reason is, if I unset all the elements of an associative array, the next time there's an assignment to it,
-# bash re-declares it as an indexed array (no matter what the index is, i.e. not numeric).  I explicitly re-declare the arrays as
-# associative within the function, as they become local to the function and don't retain their assignments out of it.
+# bash re-declares it as an indexed array (no matter what the index is, i.e. not numeric).  If explicitly re-declare the arrays as
+# associative within the function, they become local to the function and don't retain their assignments out of it.
 # So the dirty way I have worked out, it to assign one element as a dummy (non-numeric) index and clear out the rest.
 # There has to be another way.  This is not very elegant and I must be missing something.  Is this a bug?
 _PLOT_clearDB() {
