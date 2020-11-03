@@ -12,6 +12,9 @@ declare -i xV=$((${_PLOT_xVSR}/2)) yV=$((${_PLOT_yVSR}/2))
 declare -i dX= dY=0 dN=0 dNC=0 dNMax=400
 declare -i maxLength=40
 declare -i minLength=20
+declare -i xVM yVM
+
+#  _PLOT_xVSR=$((_PLOT_xPSR*_PLOT_xVScale)) _PLOT_yVSR
 
 #_PLOT_createBox Outline 0 0 $((${_PLOT_xPSR})) $((${_PLOT_yPSR}))
 #_PLOT_displayArtifact Outline 
@@ -21,8 +24,6 @@ SECONDS=0
   do
       [ $((${xV}+${dX})) -lt 0 -o $((${xV}+${dX})) -eq $((${_PLOT_xVSR})) ] && dX=$((-${dX}))
       [ $((${yV}+${dY})) -lt 0 -o $((${yV}+${dY})) -eq $((${_PLOT_yVSR})) ] && dY=$((-${dY}))
-#      [ $((${xV}+${dX}*2)) -le 0 -o $((${xV}+${dX}*2)) -ge $((${_PLOT_xVSR}*2)) ] && dX=$((-${dX}*2))
-#      [ $((${yV}+${dY}*2)) -le 0 -o $((${yV}+${dY}*2)) -ge $((${_PLOT_yVSR}*2)) ] && dY=$((-${dY}*2))
     xV+=dX yV+=dY
 # pLog After dN=$dN xV=$xV dX=$dX yV=$yV dY=$dY
       if [ ${dN} -lt 1 ]
@@ -32,8 +33,6 @@ SECONDS=0
           [ ${dX} -eq 0 -a ${dY} -eq 0 ] && continue
         dN=$((($RANDOM%${maxLength})+(${minLength}+1)))
         dNC+=1
-#          [ ${dNC} -eq ${dNMax} ] && _PLOT_writeDB && exit
-#         if [ $((${dNC}%dNMax)) -eq 0 ]
          if [ ${SECONDS} -gt 10 ]
          then
            SECONDS=0
@@ -51,7 +50,14 @@ SECONDS=0
 #wiwBloxel="${bitMap[$(((2-(xV%2))*(((yV%2)+1)**2)))]#bm}"
 # ...and also used to map to physical coordinates
 
-_PLOT_gPlot "Dot,$xV,$yV" $xV $yV
+    let xVM=${_PLOT_xVSR}-${xV}
+    let yVM=${_PLOT_yVSR}-${yV}
+    _PLOT_bPlot "Dot,$xV,$yV" $xV $yV
+    _PLOT_bPlot "Dot,$xVM,$yV" $xVM $yV
+    _PLOT_bPlot "Dot,$xV,$yVM" $xV $yVM
+    _PLOT_bPlot "Dot,$xVM,$yVM" $xVM $yVM
+    
     dN=$(($dN-1))
+sleep 0.01
   done
 

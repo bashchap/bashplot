@@ -93,6 +93,8 @@ _PLOT_registerArtifact() {
 _PLOT_BPlot() {
  local BP_artifactName=$1 BP_x=$2 BP_y=$3 BP_display="${4}"
  local BP_wiwBloxel="${_PLOT_bitMap[$(((2-(BP_x%2))*(((BP_y%2)+1)**2)))]#_PLOT_bm}"
+ #_PLOT_registerArtifact ${BP_artifactName} $((BP_x/2)) $((BP_y/2)) 1 1
+ #_PLOT_tPlot ${BP_artifactName} ${BP_wiwBloxel} $((BP_x/2)) $((BP_y/2))
  _PLOT_registerArtifact ${BP_artifactName} $((BP_x/_PLOT_xVScale)) $((BP_y/_PLOT_yVScale)) 1 1
  _PLOT_tPlot ${BP_artifactName} ${BP_wiwBloxel} $((BP_x/_PLOT_xVScale)) $((BP_y/_PLOT_yVScale))
    [ -z "${BP_display}" ] && _PLOT_displayArtifact ${BP_artifactName}
@@ -134,9 +136,7 @@ _PLOT_createBox() {
 local -i cB_cX=cB_xTLC+1
    while [ ${cB_cX} -le $((cB_xTRC-1)) ]
    do
-#     _PLOT_tPlot ${cB_artifactName} HCL $cB_cX $cB_yTLC
      _PLOT_tPlot ${cB_artifactName} UHB $cB_cX $cB_yTLC
-#     _PLOT_tPlot ${cB_artifactName} HCL $cB_cX $cB_yBLC
      _PLOT_tPlot ${cB_artifactName} LoHB $cB_cX $cB_yBLC
      cB_cX+=1 
    done
@@ -144,9 +144,7 @@ local -i cB_cX=cB_xTLC+1
  local -i cB_cY=cB_yTLC+1
    while [ ${cB_cY} -le $((cB_yBLC-1)) ]
    do
-#     _PLOT_tPlot ${cB_artifactName} VCL $cB_xTLC $cB_cY
      _PLOT_tPlot ${cB_artifactName} LHB $cB_xTLC $cB_cY
-#     _PLOT_tPlot ${cB_artifactName} VCL $cB_xTRC $cB_cY
      _PLOT_tPlot ${cB_artifactName} RHB $cB_xTRC $cB_cY
      cB_cY+=1 
    done
