@@ -58,6 +58,6 @@ SECONDS=0
     _PLOT_bPlot "Dot,$xVM,$yVM" $xVM $yVM
     
     dN=$(($dN-1))
-sleep 0.01
+#sleep 0.01
   done
 
